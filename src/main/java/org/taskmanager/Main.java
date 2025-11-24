@@ -1,0 +1,88 @@
+package org.taskmanager;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) throws IOException {
+
+        HashMap<Integer, Task> tasks = TaskRepository.loadTasks();
+
+        Scanner scanner = new Scanner(System.in);
+
+        while(true){
+            System.out.println("Welcome to TaskManager ! What do you want to do ?");
+            System.out.println("1 - Add a new task");
+            System.out.println("2 - Read all tasks");
+            System.out.println("3 - Mark a task as done");
+            System.out.println("4 - Unmark a task as done");
+
+            if (!scanner.hasNextInt()) {
+                System.out.println("You must enter a number!");
+                scanner.nextLine();
+                continue;
+            }
+
+            int choice = scanner.nextInt();
+
+            switch(choice){
+                case 1:
+                    System.out.println("Let's add a new task ! Enter the description :");
+                    scanner.nextLine();
+                    Task t = new Task(scanner.nextLine());
+                    tasks.put(t.getId(), t);
+                    TaskRepository.saveTasks(tasks);
+                    System.out.println("Task added !");
+                    break;
+                case 2:
+                    System.out.println("Let's read all tasks");
+                    tasks = TaskRepository.loadTasks();
+                    for(Task task : tasks.values()){
+                        System.out.println(task.toString());
+                    }
+                    break;
+                case 3:
+                    System.out.println("What task do you want to mark as done ? Please give the id");
+                    scanner.nextLine();
+                    try {
+                        int inputId = scanner.nextInt();
+                        Task taskToUpdate = tasks.get(inputId);
+
+                        if (taskToUpdate != null) {
+                            taskToUpdate.markAsDone();
+                            TaskRepository.saveTasks(tasks);
+                        } else {
+                            System.out.println("No task found with this id");
+                        }
+
+                    } catch (InputMismatchException e){
+                        System.out.println("You must enter a number!");
+                        scanner.nextLine();
+                    }
+                    break;
+                case 4:
+                    System.out.println("What task do you want to unmark as done ? Please give the id");
+                    scanner.nextLine();
+                    try {
+                        int inputId = scanner.nextInt();
+                        Task taskToUpdate = tasks.get(inputId);
+
+                        if (taskToUpdate != null) {
+                            taskToUpdate.unmarkAsDone();
+                            TaskRepository.saveTasks(tasks);
+                        } else {
+                            System.out.println("No task found with this id");
+                        }
+                    } catch (InputMismatchException e){
+                        System.out.println("You must enter a number!");
+                        scanner.nextLine();
+                    }
+                    break;
+                default:
+                    System.out.println("Please tap 1 or 2");
+            }
+        }
+    }
+}
