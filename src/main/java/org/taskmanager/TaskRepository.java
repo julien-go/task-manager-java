@@ -17,35 +17,33 @@ public class TaskRepository {
 
 
 
-    public static void saveTasks(HashMap<Integer, Task> tasks) throws IOException {
+    public static void saveTasks(List<Task> tasks) throws IOException {
         Gson gson = new Gson();
-        List<Task> taskList = new ArrayList<>(tasks.values());
+        List<Task> taskList = new ArrayList<>(tasks);
         try (FileWriter writer = new FileWriter(FILE_PATH)) {
             gson.toJson(taskList, writer);
         }
     }
 
-    public static HashMap<Integer, Task> loadTasks() {
+    public static List<Task>  loadTasks() {
         Gson gson = new Gson();
-        HashMap<Integer, Task> map = new HashMap<>();
-
+        List<Task> tasks = new ArrayList<>();
         Type listType = new TypeToken<List<Task>>() {}.getType();
 
         try (FileReader reader = new FileReader(FILE_PATH)) {
-            List<Task> tasks = gson.fromJson(reader, listType);
+            tasks = gson.fromJson(reader, listType);
             if (tasks != null) {
                 int maxId = 0;
                 for (Task t : tasks) {
-                    map.put(t.getId(), t);
                     if (t.getId() > maxId) maxId = t.getId();
                     Task.setNextId(maxId + 1);
                 }
             }
         } catch (IOException e) {
-            return new HashMap<>();
+            return tasks;
         }
 
-        return map;
+        return tasks;
     }
 
 }
